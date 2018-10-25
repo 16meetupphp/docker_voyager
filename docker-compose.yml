@@ -1,0 +1,35 @@
+version: '2'
+services:
+    nginx:
+        build:
+            context: ./
+            dockerfile: nginx.dockerfile
+        restart: always
+        depends_on: 
+            - php
+        volumes:
+            - ./src/:/var/www
+        expose:
+            - "$HTTP_PORT"
+        links:
+            - php
+        environment:
+            VIRTUAL_HOST: "$VIRTUAL_HOST"
+            LETSENCRYPT_HOST: "$SSL_HOST"
+    php:
+        build:
+            context: ./
+            dockerfile: php.dockerfile
+        restart: always 
+        volumes:
+            - ./src/:/var/www
+        environment:
+            DB_PORT: "$DB_PORT"
+            DB_HOST: "$DB_HOST"
+            DB_DATABASE: "$MYSQL_DATABASE"
+            DB_USERNAME: "$DB_USERNAME"
+            DB_PASSWORD: "$DB_PASSWORD"
+networks:
+    default:
+        external:
+            name: nginx-proxy
